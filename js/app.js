@@ -257,14 +257,14 @@ async function handleUploadFile(file) {
     ui.showDownloadLink(downloadLink);
 
     // 6. Save the following data to the local storage
-    const uploadData = {
-      downloadLink: downloadLink,
-      timestamp: timestamp,
-      fileName: file.name,
-      fileSize: file.size
+    const fileMetadata = {
+      name: file.name,
+      size: file.size,
+      uploadDate: timestamp,
+      downloadUrl: `${FILE_SHARE_DOWNLOAD_ENDPOINT}/${fileNameWithUUID}` // Store the base URL, as the file name is appended in ui.js
     };
-    localStorage.setItem(`upload_${uuid}`, JSON.stringify(uploadData));
-    console.log("Upload data saved to local storage:", uploadData);
+    ui.storeUploadedFileMetadata(fileMetadata);
+    console.log("Upload data saved to local storage:", fileMetadata);
 
   } catch (error) {
     console.error("Error during file upload process:", error);

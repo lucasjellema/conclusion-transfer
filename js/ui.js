@@ -45,6 +45,10 @@ function setupEventListeners(signInCallback, signOutCallback, uploadFileCallback
     fileInput: document.getElementById('file-input'),
     uploadButton: document.getElementById('upload-button'),
     resetButton: document.getElementById('reset-button'),
+    toggleUploadedFilesButton: document.getElementById('toggle-uploaded-files'),
+    uploadedFilesContent: document.getElementById('uploaded-files-content'),
+    uploadedFilesSection: document.getElementById('uploaded-files-section'),
+    uploadedFilesList: document.getElementById('uploaded-files-list'),
   };
   
   // Set up sign in button
@@ -107,6 +111,21 @@ function setupEventListeners(signInCallback, signOutCallback, uploadFileCallback
        elements.resetButton.style.display = 'none'; // Hide reset button
      });
    }
+
+  // Set up toggle uploaded files button
+  if (elements.toggleUploadedFilesButton) {
+    elements.toggleUploadedFilesButton.addEventListener('click', (event) => {
+      event.preventDefault();
+      if (elements.uploadedFilesContent.style.display === 'block') {
+        elements.uploadedFilesContent.style.display = 'none';
+      } else {
+        elements.uploadedFilesContent.style.display = 'block';
+        // add style class collapsible-content.activev
+        elements.uploadedFilesContent.classList.add('active');
+        loadAndDisplayUploadedFiles(); // Load files when section is opened
+      }
+    });
+  }
  }
 
 /**
@@ -121,6 +140,7 @@ export function showAuthenticatedUser(user, tokenClaims) {
     signOutButton: document.getElementById('signout-button'),
     fileUploadSection: document.getElementById('file-upload-section'),
     fileInfoDisplay: document.getElementById('file-info-display'),
+    uploadedFilesSection: document.getElementById('uploaded-files-section'),
   };
   
   // Update welcome message with user's name
@@ -143,6 +163,11 @@ export function showAuthenticatedUser(user, tokenClaims) {
   // Show file upload section
   if (elements.fileUploadSection) {
     elements.fileUploadSection.style.display = 'block';
+  }
+
+  if (elements.uploadedFilesSection) {
+    elements.uploadedFilesSection.style.display = 'block';
+    loadAndDisplayUploadedFiles(); // Load files when authenticated
   }
   
   // Add authenticated class to body
@@ -179,6 +204,10 @@ export function showUnauthenticatedState() {
   // Hide file upload section
   if (elements.fileUploadSection) {
     elements.fileUploadSection.style.display = 'none';
+  }
+
+  if (elements.uploadedFilesSection) {
+    elements.uploadedFilesSection.style.display = 'none';
   }
   
   // Update body class
@@ -237,4 +266,108 @@ export function showDownloadLink(link) {
       });
     }
   }
+}
+
+/**
+ * Loads uploaded file metadata from local storage and displays them.
+ */
+function loadAndDisplayUploadedFiles() {
+  const uploadedFilesList = document.getElementById('uploaded-files-list');
+  if (!uploadedFilesList) return;
+
+  uploadedFilesList.innerHTML = ''; // Clear existing list
+
+  const files = JSON.parse(localStorage.getItem('uploadedFiles') || '[]');
+
+  if (files.length === 0) {
+    uploadedFilesList.innerHTML = '<li>No files uploaded yet.</li>';
+    return;
+  }
+
+  files.forEach(file => {
+    const listItem = document.createElement('li');
+    const downloadLink = `${file.downloadUrl}`; // Construct full download URL
+
+    listItem.innerHTML = `
+      <p><strong>File Name:</strong> ${file.name}</p>
+      <p><strong>Size:</strong> ${(file.size / 1024).toFixed(2)} KB</p>
+      <p><strong>Uploaded On:</strong> ${new Date(file.uploadDate).toLocaleString()}</p>
+      <p><strong>Download Link:</strong> <a href="${downloadLink}" target="_blank">${downloadLink}</a></p>
+      <button class="copy-link-button" data-link="${downloadLink}">Copy Link</button>
+    `;
+    uploadedFilesList.appendChild(listItem);
+  });
+
+  // Add event listeners for copy buttons
+  uploadedFilesList.querySelectorAll('.copy-link-button').forEach(button => {
+    button.addEventListener('click', (event) => {
+      const linkToCopy = event.target.dataset.link;
+      navigator.clipboard.writeText(linkToCopy)
+        .then(() => alert('Download link copied to clipboard!'))
+        .catch(err => console.error('Failed to copy link: ', err));
+    });
+  });
+}
+
+/**
+ * Stores uploaded file metadata in local storage.
+ * @param {Object} fileMetadata - The metadata of the uploaded file.
+ */
+export function storeUploadedFileMetadata(fileMetadata) {
+  let files = JSON.parse(localStorage.getItem('uploadedFiles') || '[]');
+  files.push(fileMetadata);
+  localStorage.setItem('uploadedFiles', JSON.stringify(files));
+  loadAndDisplayUploadedFiles(); // Refresh the displayed list
+}
+
+/**
+ * Loads uploaded file metadata from local storage and displays them.
+ */
+function loadAndDisplayUploadedFiles2() {
+  const uploadedFilesList = document.getElementById('uploaded-files-list');
+  if (!uploadedFilesList) return;
+
+  uploadedFilesList.innerHTML = ''; // Clear existing list
+
+  const files = JSON.parse(localStorage.getItem('uploadedFiles') || '[]');
+
+  if (files.length === 0) {
+    uploadedFilesList.innerHTML = '<li>No files uploaded yet.</li>';
+    return;
+  }
+
+  files.forEach(file => {
+    const listItem = document.createElement('li');
+    const downloadLink = `${file.downloadUrl}/${file.name}`; // Construct full download URL
+
+    listItem.innerHTML = `
+      <p><strong>File Name:</strong> ${file.name}</p>
+      <p><strong>Size:</strong> ${(file.size / 1024).toFixed(2)} KB</p>
+      <p><strong>Uploaded On:</strong> ${new Date(file.uploadDate).toLocaleString()}</p>
+      <p><strong>Download Link:</strong> <a href="${downloadLink}" target="_blank">${downloadLink}</a></p>
+      <button class="copy-link-button" data-link="${downloadLink}">Copy Link</button>
+    `;
+    uploadedFilesList.appendChild(listItem);
+  });
+
+  // Add event listeners for copy buttons
+  uploadedFilesList.querySelectorAll('.copy-link-button').forEach(button => {
+    button.addEventListener('click', (event) => {
+      const linkToCopy = event.target.dataset.link;
+      navigator.clipboard.writeText(linkToCopy)
+        .then(() => alert('Download link copied to clipboard!'))
+        .catch(err => console.error('Failed to copy link: ', err));
+    });
+  });
+}
+
+/**
+ * Stores uploaded file metadata in local storage.
+ * @param {Object} fileMetadata - The metadata of the uploaded file.
+ */
+export function storeUploadedFileMetadata2(fileMetadata) {
+  let files = JSON.parse(localStorage.getItem('uploadedFiles') || '[]');
+  files.push(fileMetadata);
+  localStorage.setItem('uploadedFiles', JSON.stringify(files));
+  loadAndDisplayUploadedFiles(); // Refresh the displayed list
 }

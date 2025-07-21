@@ -151,3 +151,77 @@ footer {
   color: #666;
   font-size: 0.9rem;
 }
+
+/* Collapsible Panel Styles */
+.collapsible-header {
+  background-color: var(--primary-color);
+  color: white;
+  cursor: pointer;
+  padding: 10px 15px;
+  width: 100%;
+  border: none;
+  text-align: left;
+  outline: none;
+  font-size: 1rem;
+  transition: background-color 0.3s ease;
+  border-radius: 4px;
+  margin-bottom: 10px;
+}
+
+.collapsible-header:hover {
+  background-color: var(--secondary-color);
+}
+
+.collapsible-content {
+  padding: 0 18px;
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height 0.2s ease-out;
+  background-color: #f1f1f1;
+  border-radius: 4px;
+}
+
+.collapsible-content.active {
+  max-height: 500px; /* Adjust as needed */
+   overflow-y: scroll;
+}
+
+#uploaded-files-list {
+  list-style-type: none;
+  padding: 0;
+}
+
+#uploaded-files-list li {
+  background-color: white;
+  border: 1px solid #e1e1e1;
+  border-radius: 4px;
+  padding: 10px;
+  margin-bottom: 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+#uploaded-files-list li strong {
+  color: var(--primary-color);
+}
+
+#uploaded-files-list li a {
+  color: var(--primary-color);
+  text-decoration: none;
+}
+
+#uploaded-files-list li a:hover {
+  text-decoration: underline;
+}
+
+#uploaded-files-list li button {
+  background-color: #6c757d;
+  padding: 5px 10px;
+  font-size: 0.8rem;
+  align-self: flex-end;
+}
+
+#uploaded-files-list li button:hover {
+  background-color: #5a6268;
+}
