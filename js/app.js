@@ -261,6 +261,7 @@ async function handleUploadFile(file) {
       name: file.name,
       size: file.size,
       uploadDate: timestamp,
+      userName: userName, // Add username to file metadata
       downloadUrl: `${FILE_SHARE_DOWNLOAD_ENDPOINT}/${fileNameWithUUID}` // Store the base URL, as the file name is appended in ui.js
     };
     ui.storeUploadedFileMetadata(fileMetadata);

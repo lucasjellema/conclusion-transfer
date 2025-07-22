@@ -1,6 +1,10 @@
 /**
  * ui.js
  * UI management module
+ *
+ * This module handles all UI updates related to authentication status
+ * It provides functions to update the UI based on the authentication state
+ * It also includes functionality for generating and displaying QR codes.
  * 
  * This module handles all UI updates related to authentication status
  * It provides functions to update the UI based on the authentication state
@@ -14,6 +18,35 @@ const UI_CLASSES = {
   error: 'error',
   success: 'success'
 };
+
+// Function to generate QR code (using a simple approach for demonstration)
+function generateQRCode(text, elementId) {
+  // const qrCodeElement = document.getElementById(elementId);
+  // if (qrCodeElement) {
+  //   qrCodeElement.innerHTML = ''; // Clear previous QR code
+  //   // Using a free QR code API for simplicity. In a production app, consider a library or backend generation.
+  //   const qrCodeUrl = `https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${encodeURIComponent(text)}`;
+  //   const img = document.createElement('img');
+  //   img.src = qrCodeUrl;
+  //   img.alt = 'QR Code';
+  //   qrCodeElement.appendChild(img);
+  // }
+
+
+  const qrContainer = document.getElementById(elementId);
+  try {
+    new QRCode(qrContainer, {
+      text: text,
+      width: 176,
+      height: 176,
+      colorDark: "#000000",
+      colorLight: "#ffffff",
+      correctLevel: QRCode.CorrectLevel.H // L, M, Q, H
+    });
+  } catch (error) {
+    console.error('Error generating QR code:', error);
+  }
+}
 
 /**
  * Initialize the UI elements
@@ -50,7 +83,7 @@ function setupEventListeners(signInCallback, signOutCallback, uploadFileCallback
     uploadedFilesSection: document.getElementById('uploaded-files-section'),
     uploadedFilesList: document.getElementById('uploaded-files-list'),
   };
-  
+
   // Set up sign in button
   if (elements.signInButton) {
     elements.signInButton.addEventListener('click', (event) => {
@@ -60,7 +93,7 @@ function setupEventListeners(signInCallback, signOutCallback, uploadFileCallback
       }
     });
   }
-  
+
   // Set up sign out button
   if (elements.signOutButton) {
     elements.signOutButton.addEventListener('click', (event) => {
@@ -87,30 +120,30 @@ function setupEventListeners(signInCallback, signOutCallback, uploadFileCallback
       }
     });
   }
- 
-   // Set up file upload button
-   if (elements.uploadButton) {
-     elements.uploadButton.addEventListener('click', (event) => {
-       event.preventDefault();
-       const file = elements.fileInput.files[0];
-       if (file && typeof uploadFileCallback === 'function') {
-         uploadFileCallback(file);
-       } else if (!file) {
-         showError("Please select a file to upload.");
-       }
-     });
-   }
 
-   // Set up reset button
-   if (elements.resetButton) {
-     elements.resetButton.addEventListener('click', (event) => {
-       event.preventDefault();
-       elements.fileInput.value = ''; // Clear the selected file
-       showFileInfo('', ''); // Clear file info display
-       elements.uploadButton.style.display = 'none'; // Hide upload button
-       elements.resetButton.style.display = 'none'; // Hide reset button
-     });
-   }
+  // Set up file upload button
+  if (elements.uploadButton) {
+    elements.uploadButton.addEventListener('click', (event) => {
+      event.preventDefault();
+      const file = elements.fileInput.files[0];
+      if (file && typeof uploadFileCallback === 'function') {
+        uploadFileCallback(file);
+      } else if (!file) {
+        showError("Please select a file to upload.");
+      }
+    });
+  }
+
+  // Set up reset button
+  if (elements.resetButton) {
+    elements.resetButton.addEventListener('click', (event) => {
+      event.preventDefault();
+      elements.fileInput.value = ''; // Clear the selected file
+      showFileInfo('', ''); // Clear file info display
+      elements.uploadButton.style.display = 'none'; // Hide upload button
+      elements.resetButton.style.display = 'none'; // Hide reset button
+    });
+  }
 
   // Set up toggle uploaded files button
   if (elements.toggleUploadedFilesButton) {
@@ -126,7 +159,7 @@ function setupEventListeners(signInCallback, signOutCallback, uploadFileCallback
       }
     });
   }
- }
+}
 
 /**
  * Update UI to show authenticated user with user information
@@ -142,7 +175,7 @@ export function showAuthenticatedUser(user, tokenClaims) {
     fileInfoDisplay: document.getElementById('file-info-display'),
     uploadedFilesSection: document.getElementById('uploaded-files-section'),
   };
-  
+
   // Update welcome message with user's name
   if (elements.welcomeMessage) {
     const displayName = user.displayName || user.name || 'Authenticated User';
@@ -150,12 +183,12 @@ export function showAuthenticatedUser(user, tokenClaims) {
       <p>Welcome, <strong>${displayName}</strong>!</p>
     `;
   }
-  
+
   // Update button visibility
   if (elements.signInButton) {
     elements.signInButton.style.display = 'none';
   }
-  
+
   if (elements.signOutButton) {
     elements.signOutButton.style.display = 'inline-block';
   }
@@ -169,7 +202,7 @@ export function showAuthenticatedUser(user, tokenClaims) {
     elements.uploadedFilesSection.style.display = 'block';
     loadAndDisplayUploadedFiles(); // Load files when authenticated
   }
-  
+
   // Add authenticated class to body
   document.body.classList.add(UI_CLASSES.authenticated);
   document.body.classList.remove(UI_CLASSES.unauthenticated);
@@ -184,19 +217,19 @@ export function showUnauthenticatedState() {
     fileUploadSection: document.getElementById('file-upload-section'),
     fileInfoDisplay: document.getElementById('file-info-display'),
   };
-  
+
   // Reset welcome message
   if (elements.welcomeMessage) {
     elements.welcomeMessage.innerHTML = `
       <p>Welcome, please sign in</p>
     `;
   }
-  
+
   // Update button visibility
   if (elements.signInButton) {
     elements.signInButton.style.display = 'inline-block';
   }
-  
+
   if (elements.signOutButton) {
     elements.signOutButton.style.display = 'none';
   }
@@ -209,7 +242,7 @@ export function showUnauthenticatedState() {
   if (elements.uploadedFilesSection) {
     elements.uploadedFilesSection.style.display = 'none';
   }
-  
+
   // Update body class
   document.body.classList.add(UI_CLASSES.unauthenticated);
   document.body.classList.remove(UI_CLASSES.authenticated);
@@ -223,7 +256,7 @@ export function showError(message) {
   const elements = {
     welcomeMessage: document.getElementById('welcome-message')
   };
-  
+
   if (elements.welcomeMessage) {
     elements.welcomeMessage.innerHTML = `
       <p class="error-message">Error: ${message}</p>
@@ -256,6 +289,7 @@ export function showDownloadLink(link) {
     elements.fileInfoDisplay.innerHTML += `
       <p>Download Link: <a href="${link}" target="_blank">${link}</a>
       <button id="copy-link-button" data-link="${link}">Copy Link</button></p>
+      <div id="qrcode-display"></div>
     `;
     const copyButton = document.getElementById('copy-link-button');
     if (copyButton) {
@@ -265,6 +299,8 @@ export function showDownloadLink(link) {
           .catch(err => console.error('Failed to copy link: ', err));
       });
     }
+    // Generate and display QR code
+    generateQRCode(link, 'qrcode');
   }
 }
 
@@ -277,14 +313,17 @@ function loadAndDisplayUploadedFiles() {
 
   uploadedFilesList.innerHTML = ''; // Clear existing list
 
-  const files = JSON.parse(localStorage.getItem('uploadedFiles') || '[]');
+  let files = JSON.parse(localStorage.getItem('uploadedFiles') || '[]');
+
+  // Sort files by uploadDate in descending order (most recent first)
+  files.sort((a, b) => new Date(b.uploadDate).getTime() - new Date(a.uploadDate).getTime());
 
   if (files.length === 0) {
     uploadedFilesList.innerHTML = '<li>No files uploaded yet.</li>';
     return;
   }
 
-  files.forEach(file => {
+  files.forEach((file, index) => {
     const listItem = document.createElement('li');
     const downloadLink = `${file.downloadUrl}`; // Construct full download URL
 
@@ -294,8 +333,11 @@ function loadAndDisplayUploadedFiles() {
       <p><strong>Uploaded On:</strong> ${new Date(file.uploadDate).toLocaleString()}</p>
       <p><strong>Download Link:</strong> <a href="${downloadLink}" target="_blank">${downloadLink}</a></p>
       <button class="copy-link-button" data-link="${downloadLink}">Copy Link</button>
+      <div id="qrcode-display-${index}"></div>
     `;
     uploadedFilesList.appendChild(listItem);
+    // Generate and display QR code for each file
+    generateQRCode(downloadLink, `qrcode-display-${index}`);
   });
 
   // Add event listeners for copy buttons
@@ -320,54 +362,4 @@ export function storeUploadedFileMetadata(fileMetadata) {
   loadAndDisplayUploadedFiles(); // Refresh the displayed list
 }
 
-/**
- * Loads uploaded file metadata from local storage and displays them.
- */
-function loadAndDisplayUploadedFiles2() {
-  const uploadedFilesList = document.getElementById('uploaded-files-list');
-  if (!uploadedFilesList) return;
 
-  uploadedFilesList.innerHTML = ''; // Clear existing list
-
-  const files = JSON.parse(localStorage.getItem('uploadedFiles') || '[]');
-
-  if (files.length === 0) {
-    uploadedFilesList.innerHTML = '<li>No files uploaded yet.</li>';
-    return;
-  }
-
-  files.forEach(file => {
-    const listItem = document.createElement('li');
-    const downloadLink = `${file.downloadUrl}/${file.name}`; // Construct full download URL
-
-    listItem.innerHTML = `
-      <p><strong>File Name:</strong> ${file.name}</p>
-      <p><strong>Size:</strong> ${(file.size / 1024).toFixed(2)} KB</p>
-      <p><strong>Uploaded On:</strong> ${new Date(file.uploadDate).toLocaleString()}</p>
-      <p><strong>Download Link:</strong> <a href="${downloadLink}" target="_blank">${downloadLink}</a></p>
-      <button class="copy-link-button" data-link="${downloadLink}">Copy Link</button>
-    `;
-    uploadedFilesList.appendChild(listItem);
-  });
-
-  // Add event listeners for copy buttons
-  uploadedFilesList.querySelectorAll('.copy-link-button').forEach(button => {
-    button.addEventListener('click', (event) => {
-      const linkToCopy = event.target.dataset.link;
-      navigator.clipboard.writeText(linkToCopy)
-        .then(() => alert('Download link copied to clipboard!'))
-        .catch(err => console.error('Failed to copy link: ', err));
-    });
-  });
-}
-
-/**
- * Stores uploaded file metadata in local storage.
- * @param {Object} fileMetadata - The metadata of the uploaded file.
- */
-export function storeUploadedFileMetadata2(fileMetadata) {
-  let files = JSON.parse(localStorage.getItem('uploadedFiles') || '[]');
-  files.push(fileMetadata);
-  localStorage.setItem('uploadedFiles', JSON.stringify(files));
-  loadAndDisplayUploadedFiles(); // Refresh the displayed list
-}
